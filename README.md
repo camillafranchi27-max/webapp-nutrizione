@@ -1,4 +1,4 @@
-# Il mio piano — Webapp V1.1 ready
+# Il mio piano — Webapp V1.1
 
 Aggiornamento della webapp personale Next.js + Supabase.
 
@@ -52,3 +52,12 @@ Nota importante: Vercel Drop crea un nuovo progetto ad ogni upload. Per mantener
 - `Libero` viene mostrato separatamente.
 - Un pasto non registrato NON viene classificato come fuori piano.
 - La completezza del diario è una metrica separata (slot registrati / 5 slot previsti).
+
+
+## Patch 1.1.1
+- gestione errori di salvataggio senza crash pagina
+- pasto libero uniforme su tutti e 5 gli slot
+- pasto modificato parte sempre da una opzione/pasto del piano
+- colazione e spuntini modificati richiedono l'opzione di partenza
+- il menu di partenza resta visibile e la modifica viene salvata come nota
+- visualizzazione `* nota registrata` in Home e Calendario
