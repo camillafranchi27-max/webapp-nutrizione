@@ -61,3 +61,7 @@ Nota importante: Vercel Drop crea un nuovo progetto ad ogni upload. Per mantener
 - colazione e spuntini modificati richiedono l'opzione di partenza
 - il menu di partenza resta visibile e la modifica viene salvata come nota
 - visualizzazione `* nota registrata` in Home e Calendario
+
+## V1.1.3
+- Login server-side più robusto con Supabase SSR
+- Branding login: ASTARTE / 1% better, everyday
