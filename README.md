@@ -1,4 +1,4 @@
-# Il mio piano — Webapp V1.1
+# Il mio piano — Webapp V1.1 ready
 
 Aggiornamento della webapp personale Next.js + Supabase.
 
