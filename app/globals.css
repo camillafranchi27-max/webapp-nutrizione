@@ -13,3 +13,53 @@
 @media(min-width:700px){.modal-backdrop{place-items:center}.modal{border-radius:25px}.hero{padding:24px}.kpis{grid-template-columns:repeat(4,1fr)}}
 
 .error-banner{background:#fff0f0;border:1px solid #efc7c7;color:#8b3636;padding:11px 13px;border-radius:12px;margin:10px 0;font-size:13px}.meal-note{margin-top:9px;padding:9px 10px;background:#f6f3ea;border-radius:10px;font-size:13px}.note-registered{margin-top:5px;font-size:11px;color:var(--muted);font-style:italic}.field-label{display:block;margin:10px 0 5px;font-size:12px;color:var(--muted);font-weight:700}.modified-preview{margin:10px 0;padding:10px;border:1px solid var(--line);border-radius:12px;background:#fafbf8}
+
+
+/* ASTARTE v1.2.0 - Calendario mensile e wellbeing */
+.wellbeing-card{padding:10px 14px}
+.wellbeing-done{border-color:#b8cfaa;background:#f5faf2}
+.habit-toggle{width:100%;display:flex;align-items:center;gap:12px;border:0;background:transparent;text-align:left;padding:4px;cursor:pointer;color:var(--text)}
+.habit-check{width:30px;height:30px;border:1.5px solid #cbd2c5;border-radius:9px;display:grid;place-items:center;font-weight:800;font-size:18px;background:white;flex:none}
+.habit-toggle.active .habit-check{background:var(--accent);border-color:var(--accent);color:white}
+.habit-sub{display:block;margin-top:3px;font-weight:400}
+.mindfulness-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px}
+.mindfulness-chip{border:1px solid var(--line);background:white;border-radius:13px;padding:11px 10px;text-align:left;font-weight:700;color:var(--text)}
+.mindfulness-chip.active{background:var(--accent-soft);border-color:#aebe9f;color:#4f6244}
+
+.calendar-month-head{display:grid;grid-template-columns:42px 1fr 42px;align-items:center;gap:10px;margin:20px 0 16px;text-align:center}
+.month-nav{width:40px;height:40px;border:1px solid var(--line);border-radius:12px;background:white;font-size:26px;line-height:1;color:#56604f}
+.calendar-weekdays,.calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.calendar-weekdays{margin-bottom:6px;color:var(--muted);font-size:12px;text-align:center;font-weight:800}
+.calendar-cell{aspect-ratio:1/1;border:1px solid var(--line);border-radius:12px;background:white;position:relative;display:flex;align-items:flex-start;justify-content:flex-start;padding:8px;color:var(--text);min-width:0}
+.calendar-cell:disabled{cursor:default}
+.calendar-cell.has-data{background:#f7f8f5}
+.calendar-cell.complete{background:#fff8e8;border-color:#ebddb9}
+.calendar-cell.perfect{background:#dfeeda;border-color:#9fb992;color:#33462d}
+.calendar-cell.today{box-shadow:0 0 0 2px #596b50 inset;border-color:#596b50}
+.calendar-cell.empty-cell{border:0;background:transparent}
+.day-number{font-size:13px;font-weight:800}
+.day-check{position:absolute;right:6px;bottom:5px;font-size:12px;font-weight:900}
+.day-dot{position:absolute;right:7px;bottom:7px;width:6px;height:6px;border-radius:50%;background:#aeb4aa}
+.calendar-legend{display:flex;gap:14px;flex-wrap:wrap;margin:12px 2px 22px;color:var(--muted);font-size:12px}
+.calendar-legend span{display:flex;align-items:center;gap:6px}
+.legend-swatch{width:14px;height:14px;border-radius:5px;border:1px solid var(--line);display:inline-block}
+.legend-swatch.perfect{background:#dfeeda;border-color:#9fb992}
+.legend-swatch.today{background:white;border:2px solid #596b50}
+.stat-big{font-size:32px;font-weight:900;margin:10px 0 2px}
+@media(max-width:520px){
+ .calendar-weekdays,.calendar-grid{gap:4px}
+ .calendar-cell{border-radius:10px;padding:6px}
+ .mindfulness-grid{grid-template-columns:1fr 1fr}
+}
+
+
+/* ASTARTE v1.3.0 - nuove diete */
+.new-diet-card{border:1px solid #d9e4d2;background:linear-gradient(180deg,#fbfdf9,#f4f8f1)}
+.new-diet-grid{display:grid;grid-template-columns:1.35fr .65fr;gap:10px;margin:14px 0 10px}
+.new-diet-card label span,.upload-field span{display:block;font-size:12px;color:var(--muted);font-weight:700;margin-bottom:5px}
+.new-diet-card input{width:100%;padding:10px 11px;border:1px solid var(--line);border-radius:11px;background:white;color:var(--text)}
+.new-diet-card input[type=file]{padding:8px}
+.file-selected{font-size:13px;padding:9px 0;color:#53614d}
+.draft-card{border-color:#e7d8ae;background:#fffaf0}
+.draft-review{padding-top:4px}
+@media(max-width:520px){.new-diet-grid{grid-template-columns:1fr}}

@@ -65,3 +65,38 @@ Nota importante: Vercel Drop crea un nuovo progetto ad ogni upload. Per mantener
 ## V1.1.3
 - Login server-side più robusto con Supabase SSR
 - Branding login: ASTARTE / 1% better, everyday
+
+
+## ASTARTE v1.2.0
+
+Nuove funzioni:
+- Calendario mensile a caselle
+- Verde solo se i 5 pasti sono tutti "Secondo il piano"
+- Highlight della giornata corrente
+- Dettaglio giornaliero dal calendario
+- Flag Acqua ≥ 2 L
+- Mindfulness multi-selezione: Respirazione, Meditazione, Journaling, Off Grid
+- Statistiche per acqua e mindfulness
+
+### Prima del deploy
+
+Eseguire in Supabase SQL Editor:
+
+`supabase/migration_v1_2.sql`
+
+Poi caricare i file su GitHub e fare commit su `main`. Vercel farà il deploy automatico.
+
+
+## ASTARTE v1.3.0 — nuova dieta ogni 6 settimane
+
+Prima del deploy eseguire `supabase/migration_v1_3.sql`.
+
+Funzioni:
+- upload PDF privato nella sezione Dieta;
+- creazione automatica di una nuova versione in bozza;
+- clonazione della dieta attiva come base della bozza;
+- revisione/modifica manuale della bozza;
+- attivazione con archiviazione automatica della dieta precedente;
+- eliminazione della bozza e del PDF caricato.
+
+Nota: questa versione NON interpreta automaticamente il contenuto del PDF. La bozza parte dalla dieta attuale e permette di applicare manualmente le modifiche del nutrizionista prima dell'attivazione. L'estrazione automatica dal PDF richiede un servizio di parsing/AI separato e verrà aggiunta come funzione successiva.
