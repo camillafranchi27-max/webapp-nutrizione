@@ -3,11 +3,25 @@ import {revalidatePath} from "next/cache";
 import {createClient} from "@/lib/supabase/server";
 
 async function auth(){const supabase=await createClient();const {data}=await supabase.auth.getClaims();const userId=data?.claims?.sub;if(!userId)throw new Error("Non autenticata");return {supabase,userId}}
+type ActionResult<T=undefined>={ok:true;data?:T}|{ok:false;error:string};
+function actionError(e:unknown){return e instanceof Error?e.message:"Errore imprevisto";}
+
 async function ensureDay(supabase:any,userId:string,input:{date:string;planVersionId:string;sourceWeekday:number;swapped:boolean}){
- const {data,error}=await supabase.from("daily_logs").upsert({user_id:userId,log_date:input.date,plan_version_id:input.planVersionId,source_weekday:input.sourceWeekday,lunch_dinner_swapped:input.swapped},{onConflict:"user_id,log_date"}).select("id").single();
- if(error||!data)throw new Error(error?.message??"Errore diario");return data.id as string;
+ const {data:existing,error:findError}=await supabase.from("daily_logs").select("id").eq("user_id",userId).eq("log_date",input.date).maybeSingle();
+ if(findError)throw new Error(findError.message);
+ if(existing?.id){
+  const {error:updateError}=await supabase.from("daily_logs").update({plan_version_id:input.planVersionId,source_weekday:input.sourceWeekday,lunch_dinner_swapped:input.swapped}).eq("id",existing.id).eq("user_id",userId);
+  if(updateError)throw new Error(updateError.message);
+  return existing.id as string;
+ }
+ const {data:created,error:insertError}=await supabase.from("daily_logs").insert({user_id:userId,log_date:input.date,plan_version_id:input.planVersionId,source_weekday:input.sourceWeekday,lunch_dinner_swapped:input.swapped}).select("id").single();
+ if(insertError||!created)throw new Error(insertError?.message??"Errore creazione giornata");
+ return created.id as string;
 }
-export async function saveDaySettings(input:{date:string;planVersionId:string;sourceWeekday:number;swapped:boolean}){const {supabase,userId}=await auth();await ensureDay(supabase,userId,input);revalidatePath("/")}
+export async function saveDaySettings(input:{date:string;planVersionId:string;sourceWeekday:number;swapped:boolean}):Promise<ActionResult>{
+ try{const {supabase,userId}=await auth();await ensureDay(supabase,userId,input);revalidatePath("/");return {ok:true}}
+ catch(e){return {ok:false,error:actionError(e)}}
+}
 export async function saveWorkout(input:{date:string;planVersionId:string;sourceWeekday:number;swapped:boolean;labels:string[]}){
  const {supabase,userId}=await auth();const dailyLogId=await ensureDay(supabase,userId,input);await supabase.from("workouts").delete().eq("daily_log_id",dailyLogId);
  const map:Record<string,string>={Nessuno:"None",Yoga:"Yoga",Corsa:"Running",Trekking:"Trekking",Camminata:"Walking",Gym:"Gym"};
@@ -23,16 +37,44 @@ export async function saveWellbeing(input:{date:string;planVersionId:string;sour
  if(error)throw new Error(error.message);
  revalidatePath("/");
 }
-export async function replaceMeal(input:{date:string;planVersionId:string;sourceWeekday:number;swapped:boolean;mealType:"breakfast"|"snack"|"lunch"|"dinner";snackTiming?:"mid_morning"|"mid_afternoon";sourceMealOptionId?:string;sourceWeeklyMealId?:string;status:"according_to_plan"|"modified"|"free";notes?:string;items:{food_name:string;quantity?:string|null;unit?:string|null;is_extra?:boolean}[]}){
- const {supabase,userId}=await auth();const dailyLogId=await ensureDay(supabase,userId,input);
- let q=supabase.from("meal_logs").select("id").eq("daily_log_id",dailyLogId).eq("meal_type",input.mealType);
- if(input.mealType==="snack")q=q.eq("snack_timing",input.snackTiming!);
- const {data:existing,error:findErr}=await q;if(findErr)throw new Error(findErr.message);
- if(existing?.length){const ids=existing.map((x:any)=>x.id);const {error}=await supabase.from("meal_logs").delete().in("id",ids);if(error)throw new Error(error.message)}
- const {data:meal,error:mealError}=await supabase.from("meal_logs").insert({user_id:userId,daily_log_id:dailyLogId,meal_type:input.mealType,snack_timing:input.mealType==="snack"?input.snackTiming:null,source_meal_option_id:input.sourceMealOptionId??null,source_weekly_meal_id:input.sourceWeeklyMealId??null,status:input.status,notes:input.notes??null}).select("id").single();
- if(mealError||!meal)throw new Error(mealError?.message??"Errore pasto");
- if(input.items.length){const {error}=await supabase.from("meal_log_items").insert(input.items.map((x,i)=>({user_id:userId,meal_log_id:meal.id,food_name:x.food_name,quantity:x.quantity??null,unit:x.unit??null,is_extra:!!x.is_extra,sort_order:i})));if(error)throw new Error(error.message)}
- revalidatePath("/")
+export async function replaceMeal(input:{date:string;planVersionId:string;sourceWeekday:number;swapped:boolean;mealType:"breakfast"|"snack"|"lunch"|"dinner";snackTiming?:"mid_morning"|"mid_afternoon";sourceMealOptionId?:string;sourceWeeklyMealId?:string;status:"according_to_plan"|"modified"|"free";notes?:string;items:{food_name:string;quantity?:string|null;unit?:string|null;is_extra?:boolean}[]}):Promise<ActionResult>{
+ try{
+  const {supabase,userId}=await auth();
+  const dailyLogId=await ensureDay(supabase,userId,input);
+
+  let q=supabase.from("meal_logs").select("id").eq("daily_log_id",dailyLogId).eq("meal_type",input.mealType);
+  if(input.mealType==="snack")q=q.eq("snack_timing",input.snackTiming!);
+  const {data:existing,error:findErr}=await q;
+  if(findErr)throw new Error(findErr.message);
+
+  // Prima crea la nuova registrazione. La precedente viene eliminata solo a salvataggio riuscito.
+  const {data:meal,error:mealError}=await supabase.from("meal_logs").insert({
+   user_id:userId,daily_log_id:dailyLogId,meal_type:input.mealType,
+   snack_timing:input.mealType==="snack"?input.snackTiming:null,
+   source_meal_option_id:input.sourceMealOptionId??null,
+   source_weekly_meal_id:input.sourceWeeklyMealId??null,
+   status:input.status,notes:input.notes??null
+  }).select("id").single();
+  if(mealError||!meal)throw new Error(mealError?.message??"Errore salvataggio pasto");
+
+  if(input.items.length){
+   const {error:itemError}=await supabase.from("meal_log_items").insert(input.items.map((x,i)=>({
+    user_id:userId,meal_log_id:meal.id,food_name:x.food_name,quantity:x.quantity??null,unit:x.unit??null,is_extra:!!x.is_extra,sort_order:i
+   })));
+   if(itemError){
+    await supabase.from("meal_logs").delete().eq("id",meal.id);
+    throw new Error(itemError.message);
+   }
+  }
+
+  const oldIds=(existing??[]).map((x:any)=>x.id).filter((id:string)=>id!==meal.id);
+  if(oldIds.length){
+   const {error:deleteError}=await supabase.from("meal_logs").delete().in("id",oldIds);
+   if(deleteError)throw new Error(deleteError.message);
+  }
+  revalidatePath("/");
+  return {ok:true};
+ }catch(e){return {ok:false,error:actionError(e)}}
 }
 export async function deleteMeal(mealLogId:string){const {supabase}=await auth();const {error}=await supabase.from("meal_logs").delete().eq("id",mealLogId);if(error)throw new Error(error.message);revalidatePath("/")}
 export async function updatePlanFood(input:{table:"option_foods"|"weekly_meal_foods";id:string;foodName:string;quantity:string;planId:string;section:string;oldFoodName:string;oldQuantity:string}){
@@ -41,45 +83,71 @@ export async function updatePlanFood(input:{table:"option_foods"|"weekly_meal_fo
 }
 
 
-export async function createDraftPlanVersion(input:{planId:string;validFrom:string;sourceDocumentPath:string;sourceDocumentName:string;notes?:string}){
- const {supabase,userId}=await auth();
- const {data:source,error:sourceErr}=await supabase.from("plan_versions").select("id,version_number,notes").eq("plan_id",input.planId).eq("user_id",userId).neq("status","draft").lte("valid_from",new Date().toISOString().slice(0,10)).order("version_number",{ascending:false}).limit(1).single();
- if(sourceErr||!source)throw new Error(sourceErr?.message??"Piano attivo non trovato");
- const nextVersion=(source.version_number??0)+1;
- const {data:newVersion,error:vErr}=await supabase.from("plan_versions").insert({user_id:userId,plan_id:input.planId,version_number:nextVersion,valid_from:input.validFrom,status:"draft",notes:input.notes??source.notes??null,source_document_path:input.sourceDocumentPath,source_document_name:input.sourceDocumentName}).select("id,version_number,valid_from,status,source_document_name").single();
- if(vErr||!newVersion)throw new Error(vErr?.message??"Impossibile creare la nuova versione");
+export async function createDraftPlanVersion(input:{planId:string;validFrom:string;sourceDocumentPath:string;sourceDocumentName:string;notes?:string}):Promise<ActionResult<{id:string;version_number:number}>>{
+ let newVersionId:string|undefined;
+ try{
+  const {supabase,userId}=await auth();
 
- const {data:opts,error:oErr}=await supabase.from("meal_options").select("id,meal_type,option_number,option_name,pre_workout,active,notes,sort_order").eq("plan_version_id",source.id).order("sort_order");
- if(oErr)throw new Error(oErr.message);
- for(const o of opts??[]){
+  const {data:existingDraft,error:draftErr}=await supabase.from("plan_versions").select("id,version_number").eq("plan_id",input.planId).eq("user_id",userId).eq("status","draft").order("version_number",{ascending:false}).limit(1).maybeSingle();
+  if(draftErr)throw new Error(draftErr.message);
+  if(existingDraft)throw new Error(`Esiste già una bozza (versione ${existingDraft.version_number}). Aprila o eliminala prima di caricarne un'altra.`);
+
+  const {data:source,error:sourceErr}=await supabase.from("plan_versions").select("id,version_number,notes").eq("plan_id",input.planId).eq("user_id",userId).neq("status","draft").lte("valid_from",new Date().toISOString().slice(0,10)).order("version_number",{ascending:false}).limit(1).maybeSingle();
+  if(sourceErr||!source)throw new Error(sourceErr?.message??"Piano attivo non trovato");
+
+  const {data:lastVersion,error:lastErr}=await supabase.from("plan_versions").select("version_number").eq("plan_id",input.planId).eq("user_id",userId).order("version_number",{ascending:false}).limit(1).maybeSingle();
+  if(lastErr)throw new Error(lastErr.message);
+  const nextVersion=(lastVersion?.version_number??source.version_number??0)+1;
+
+  const {data:newVersion,error:vErr}=await supabase.from("plan_versions").insert({
+   user_id:userId,plan_id:input.planId,version_number:nextVersion,valid_from:input.validFrom,status:"draft",
+   notes:input.notes??source.notes??null,source_document_path:input.sourceDocumentPath,source_document_name:input.sourceDocumentName
+  }).select("id,version_number").single();
+  if(vErr||!newVersion)throw new Error(vErr?.message??"Impossibile creare la nuova versione");
+  newVersionId=newVersion.id;
+
+  const {data:opts,error:oErr}=await supabase.from("meal_options").select("id,meal_type,option_number,option_name,pre_workout,active,notes,sort_order").eq("plan_version_id",source.id).order("sort_order");
+  if(oErr)throw new Error(oErr.message);
+  for(const o of opts??[]){
    const {data:no,error:noErr}=await supabase.from("meal_options").insert({user_id:userId,plan_version_id:newVersion.id,meal_type:o.meal_type,option_number:o.option_number,option_name:o.option_name,pre_workout:o.pre_workout,active:o.active,notes:o.notes,sort_order:o.sort_order}).select("id").single();
    if(noErr||!no)throw new Error(noErr?.message??"Errore copia opzioni");
    const {data:foods,error:fErr}=await supabase.from("option_foods").select("food_name,quantity,unit,optional,sort_order").eq("meal_option_id",o.id).order("sort_order");
    if(fErr)throw new Error(fErr.message);
    if(foods?.length){const {error}=await supabase.from("option_foods").insert(foods.map(f=>({user_id:userId,meal_option_id:no.id,...f})));if(error)throw new Error(error.message)}
- }
+  }
 
- const {data:meals,error:mErr}=await supabase.from("weekly_meals").select("id,weekday,meal_type,notes").eq("plan_version_id",source.id).order("weekday");
- if(mErr)throw new Error(mErr.message);
- for(const m of meals??[]){
-   const {data:nm,error:nmErr}=await supabase.from("weekly_meals").insert({user_id:userId,plan_version_id:newVersion.id,weekday:m.weekday,meal_type:m.meal_type,notes:m.notes}).select("id").single();
+  const {data:meals,error:mErr}=await supabase.from("weekly_meals").select("id,weekday,meal_type,notes").eq("plan_version_id",source.id).order("weekday");
+  if(mErr)throw new Error(mErr.message);
+  for(const mealSource of meals??[]){
+   const {data:nm,error:nmErr}=await supabase.from("weekly_meals").insert({user_id:userId,plan_version_id:newVersion.id,weekday:mealSource.weekday,meal_type:mealSource.meal_type,notes:mealSource.notes}).select("id").single();
    if(nmErr||!nm)throw new Error(nmErr?.message??"Errore copia pasti");
-   const {data:foods,error:fErr}=await supabase.from("weekly_meal_foods").select("food_name,quantity,unit,optional,sort_order").eq("weekly_meal_id",m.id).order("sort_order");
+   const {data:foods,error:fErr}=await supabase.from("weekly_meal_foods").select("food_name,quantity,unit,optional,sort_order").eq("weekly_meal_id",mealSource.id).order("sort_order");
    if(fErr)throw new Error(fErr.message);
    if(foods?.length){const {error}=await supabase.from("weekly_meal_foods").insert(foods.map(f=>({user_id:userId,weekly_meal_id:nm.id,...f})));if(error)throw new Error(error.message)}
- }
+  }
 
- const {data:groups,error:gErr}=await supabase.from("equivalence_groups").select("id,name,description").eq("plan_version_id",source.id).order("created_at");
- if(gErr)throw new Error(gErr.message);
- for(const g of groups??[]){
+  const {data:groups,error:gErr}=await supabase.from("equivalence_groups").select("id,name,description").eq("plan_version_id",source.id).order("created_at");
+  if(gErr)throw new Error(gErr.message);
+  for(const g of groups??[]){
    const {data:ng,error:ngErr}=await supabase.from("equivalence_groups").insert({user_id:userId,plan_version_id:newVersion.id,name:g.name,description:g.description}).select("id").single();
    if(ngErr||!ng)throw new Error(ngErr?.message??"Errore copia equivalenze");
    const {data:items,error:iErr}=await supabase.from("equivalence_items").select("food_name,quantity,unit,sort_order").eq("equivalence_group_id",g.id).order("sort_order");
    if(iErr)throw new Error(iErr.message);
    if(items?.length){const {error}=await supabase.from("equivalence_items").insert(items.map(i=>({user_id:userId,equivalence_group_id:ng.id,...i})));if(error)throw new Error(error.message)}
+  }
+
+  revalidatePath("/");
+  return {ok:true,data:{id:newVersion.id,version_number:newVersion.version_number}};
+ }catch(e){
+  // Se la copia fallisce dopo aver creato la bozza, elimina la bozza incompleta.
+  try{
+   if(newVersionId){
+    const {supabase,userId}=await auth();
+    await supabase.from("plan_versions").delete().eq("id",newVersionId).eq("user_id",userId);
+   }
+  }catch{}
+  return {ok:false,error:actionError(e)};
  }
- revalidatePath("/");
- return newVersion;
 }
 
 export async function activatePlanVersion(input:{planId:string;versionId:string}){

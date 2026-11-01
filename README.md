@@ -100,3 +100,12 @@ Funzioni:
 - eliminazione della bozza e del PDF caricato.
 
 Nota: questa versione NON interpreta automaticamente il contenuto del PDF. La bozza parte dalla dieta attuale e permette di applicare manualmente le modifiche del nutrizionista prima dell'attivazione. L'estrazione automatica dal PDF richiede un servizio di parsing/AI separato e verrà aggiunta come funzione successiva.
+
+
+## v1.3.1 — Stability patch
+- Gli errori di salvataggio pasti e nuova dieta vengono mostrati con il messaggio reale Supabase, non più come React #441.
+- "Libero" usa un salvataggio più sicuro: la vecchia registrazione viene rimossa solo dopo il successo della nuova.
+- Inversione pranzo/cena: rollback visivo se il database rifiuta il salvataggio.
+- Calendario: ogni giorno è apribile, anche senza registrazioni.
+- Evidenza più netta per oggi e per giornate verdi 5/5.
+- Creazione bozza dieta più robusta e protezione contro bozze duplicate.

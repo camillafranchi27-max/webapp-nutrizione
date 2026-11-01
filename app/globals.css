@@ -63,3 +63,10 @@
 .draft-card{border-color:#e7d8ae;background:#fffaf0}
 .draft-review{padding-top:4px}
 @media(max-width:520px){.new-diet-grid{grid-template-columns:1fr}}
+
+/* ASTARTE v1.3.1 stability patch */
+.calendar-cell{cursor:pointer!important}
+.calendar-cell.no-data{background:#fff;border-color:#e4e7df}
+.calendar-cell.today{outline:3px solid #596b50;outline-offset:1px;box-shadow:none!important}
+.calendar-cell.perfect{background:#d8ecd1!important;border-color:#86a978!important;color:#2f4728!important}
+.calendar-cell.perfect.today{outline-color:#344c2d}
