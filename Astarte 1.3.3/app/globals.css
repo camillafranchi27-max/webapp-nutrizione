@@ -1,0 +1,90 @@
+:root{--bg:#f5f6f2;--surface:#fff;--surface2:#f0f3ec;--text:#20251f;--muted:#747b70;--line:#e4e8df;--accent:#718561;--accent-dark:#556848;--accent-soft:#eaf0e5;--gold:#d5a85a;--free:#efe6da;--modified:#fff2ce;--danger:#a55454;--shadow:0 8px 30px rgba(39,52,34,.07)}
+*{box-sizing:border-box} html,body{margin:0;padding:0;background:linear-gradient(180deg,#f8f9f5 0,#f4f5f1 100%);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif} button,input,select,textarea{font:inherit} button{cursor:pointer} a{color:inherit;text-decoration:none}
+.shell{max-width:760px;margin:0 auto;min-height:100vh;padding:0 16px 96px}.topbar{position:sticky;top:0;z-index:20;background:rgba(248,249,245,.88);backdrop-filter:blur(16px);padding:15px 0 10px}.topbar-inner{display:flex;align-items:center;justify-content:space-between}.brand{font-weight:850;font-size:21px;letter-spacing:-.4px}.eyebrow{color:var(--accent-dark);font-weight:800;font-size:11px;letter-spacing:.11em}.muted{color:var(--muted)}.small{font-size:12px}
+.hero{background:linear-gradient(135deg,#748965,#9aaa8e);color:#fff;border-radius:24px;padding:20px;margin:8px 0 16px;box-shadow:var(--shadow)}.hero h1{font-size:25px;margin:4px 0}.hero-sub{opacity:.88;font-size:13px}.progress{height:8px;background:rgba(255,255,255,.25);border-radius:999px;overflow:hidden;margin-top:14px}.progress>span{display:block;height:100%;background:#fff;border-radius:999px}.progress-label{display:flex;justify-content:space-between;margin-top:7px;font-size:12px;opacity:.9}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:16px;margin:11px 0;box-shadow:0 2px 12px rgba(39,52,34,.035)}.meal-card{position:relative;overflow:hidden}.meal-card.recorded{border-color:#d9e2d2}.meal-card.free{border-color:#e4d5c2;background:#fffdf9}.meal-card.modified{border-color:#eadcae}.meal-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}.meal-title{font-size:17px;font-weight:850;display:flex;align-items:center;gap:8px}.meal-icon{font-size:20px}.status{font-size:11px;font-weight:800;border-radius:999px;padding:6px 9px;background:#f0f1ee;color:#687065;white-space:nowrap}.status.plan{background:var(--accent-soft);color:var(--accent-dark)}.status.free{background:var(--free);color:#806441}.status.modified{background:var(--modified);color:#846d25}.food{display:flex;justify-content:space-between;gap:14px;padding:6px 0;border-bottom:1px dashed #ecefe9;font-size:14px}.food:last-child{border-bottom:0}.qty{white-space:nowrap;color:#4d544a;text-align:right}.meal-body{margin-top:10px}.section-title{font-size:19px;font-weight:850;margin:23px 0 9px;letter-spacing:-.25px}.between{display:flex;justify-content:space-between;gap:12px;align-items:center}.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.btn{border:0;border-radius:13px;padding:10px 13px;font-weight:800;background:#edf0eb;color:#30362e}.btn:hover{filter:brightness(.98)}.btn-primary{background:var(--accent);color:#fff}.btn-outline{background:#fff;border:1px solid var(--line)}.btn-soft{background:var(--accent-soft);color:var(--accent-dark)}.btn-danger{background:#f8eaea;color:var(--danger)}.btn-block{width:100%}.btn-xs{padding:7px 10px;font-size:12px}.actions{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}
+.pill{display:inline-block;border-radius:999px;padding:5px 8px;background:var(--accent-soft);font-size:12px;margin:2px}.notice{padding:11px 12px;border-radius:13px;background:#fff7df;font-size:12px;color:#705f2e;margin-top:10px}.tabs{position:fixed;left:0;right:0;bottom:0;background:rgba(255,255,255,.96);backdrop-filter:blur(14px);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);z-index:30;padding-bottom:env(safe-area-inset-bottom)}.tab{padding:12px 4px;border:0;background:transparent;font-size:11px;color:#70766d}.tab.active{font-weight:850;color:var(--accent-dark)}.tab-icon{display:block;font-size:18px;margin-bottom:2px}
+.login-wrap{min-height:100vh;display:grid;place-items:center;padding:20px;background:radial-gradient(circle at 30% 10%,#e9efe4,transparent 35%),var(--bg)}.login-card{width:min(420px,100%);background:white;border:1px solid var(--line);border-radius:26px;padding:26px;box-shadow:var(--shadow)}.field{margin:12px 0}.field label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px;font-weight:700}.field input,.field select,.field textarea,select{width:100%;padding:11px 12px;border:1px solid #dce2d8;border-radius:12px;background:white;color:var(--text)}.field textarea{min-height:90px;resize:vertical}.error{color:#a14242;font-size:13px;margin-top:8px}
+.workouts{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.workout{border:1px solid var(--line);background:white;border-radius:999px;padding:8px 11px}.workout.active{background:var(--accent);color:white;border-color:var(--accent)}
+.modal-backdrop{position:fixed;inset:0;background:rgba(30,35,28,.38);z-index:60;display:grid;place-items:end center;padding:12px}.modal{background:#fff;width:min(620px,100%);max-height:88vh;overflow:auto;border-radius:25px 25px 18px 18px;padding:18px;box-shadow:0 -10px 50px rgba(0,0,0,.2)}.modal-title{font-size:20px;font-weight:850;margin-bottom:4px}.option{border:1px solid var(--line);border-radius:16px;padding:13px;margin:10px 0}.option:hover{border-color:#cbd5c4}.option-name{font-weight:850;margin-bottom:7px}
+.calendar-list{display:grid;gap:9px}.calendar-day{background:white;border:1px solid var(--line);border-radius:17px;padding:14px;display:flex;justify-content:space-between;align-items:center;cursor:pointer}.calendar-day:hover{border-color:#cbd5c4}.calendar-date{font-weight:800}.calendar-meta{font-size:12px;color:var(--muted);margin-top:3px}.chevron{font-size:22px;color:#9ba198}.detail-header{display:flex;align-items:center;gap:10px;margin:10px 0 16px}.back{width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:white;font-size:18px}.detail-meal{margin:10px 0;padding:13px;border-radius:15px;background:#fafbf8;border:1px solid var(--line)}
+.kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.kpi{text-align:center}.kpi strong{font-size:27px;display:block}.bar-row{margin:14px 0}.bar-label{display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px}.bar{height:9px;border-radius:999px;background:#edf0eb;overflow:hidden}.bar span{display:block;height:100%;background:var(--accent);border-radius:999px}.bar.free span{background:#caa778}.bar.modified span{background:#d3b951}.center{text-align:center}.empty{padding:18px;text-align:center;color:var(--muted);font-size:13px}.plan-day{margin-bottom:14px}.plan-day summary{font-weight:850;cursor:pointer;padding:4px 0}.plan-edit{display:grid;grid-template-columns:1fr 130px;gap:8px;margin:7px 0}.plan-edit input{padding:9px;border:1px solid var(--line);border-radius:10px}.divider{height:1px;background:var(--line);margin:14px 0}
+@media(min-width:700px){.modal-backdrop{place-items:center}.modal{border-radius:25px}.hero{padding:24px}.kpis{grid-template-columns:repeat(4,1fr)}}
+
+.error-banner{background:#fff0f0;border:1px solid #efc7c7;color:#8b3636;padding:11px 13px;border-radius:12px;margin:10px 0;font-size:13px}.meal-note{margin-top:9px;padding:9px 10px;background:#f6f3ea;border-radius:10px;font-size:13px}.note-registered{margin-top:5px;font-size:11px;color:var(--muted);font-style:italic}.field-label{display:block;margin:10px 0 5px;font-size:12px;color:var(--muted);font-weight:700}.modified-preview{margin:10px 0;padding:10px;border:1px solid var(--line);border-radius:12px;background:#fafbf8}
+
+
+/* ASTARTE v1.2.0 - Calendario mensile e wellbeing */
+.wellbeing-card{padding:10px 14px}
+.wellbeing-done{border-color:#b8cfaa;background:#f5faf2}
+.habit-toggle{width:100%;display:flex;align-items:center;gap:12px;border:0;background:transparent;text-align:left;padding:4px;cursor:pointer;color:var(--text)}
+.habit-check{width:30px;height:30px;border:1.5px solid #cbd2c5;border-radius:9px;display:grid;place-items:center;font-weight:800;font-size:18px;background:white;flex:none}
+.habit-toggle.active .habit-check{background:var(--accent);border-color:var(--accent);color:white}
+.habit-sub{display:block;margin-top:3px;font-weight:400}
+.mindfulness-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px}
+.mindfulness-chip{border:1px solid var(--line);background:white;border-radius:13px;padding:11px 10px;text-align:left;font-weight:700;color:var(--text)}
+.mindfulness-chip.active{background:var(--accent-soft);border-color:#aebe9f;color:#4f6244}
+
+.calendar-month-head{display:grid;grid-template-columns:42px 1fr 42px;align-items:center;gap:10px;margin:20px 0 16px;text-align:center}
+.month-nav{width:40px;height:40px;border:1px solid var(--line);border-radius:12px;background:white;font-size:26px;line-height:1;color:#56604f}
+.calendar-weekdays,.calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.calendar-weekdays{margin-bottom:6px;color:var(--muted);font-size:12px;text-align:center;font-weight:800}
+.calendar-cell{aspect-ratio:1/1;border:1px solid var(--line);border-radius:12px;background:white;position:relative;display:flex;align-items:flex-start;justify-content:flex-start;padding:8px;color:var(--text);min-width:0}
+.calendar-cell:disabled{cursor:default}
+.calendar-cell.has-data{background:#f7f8f5}
+.calendar-cell.complete{background:#fff8e8;border-color:#ebddb9}
+.calendar-cell.perfect{background:#dfeeda;border-color:#9fb992;color:#33462d}
+.calendar-cell.today{box-shadow:0 0 0 2px #596b50 inset;border-color:#596b50}
+.calendar-cell.empty-cell{border:0;background:transparent}
+.day-number{font-size:13px;font-weight:800}
+.day-check{position:absolute;right:6px;bottom:5px;font-size:12px;font-weight:900}
+.day-dot{position:absolute;right:7px;bottom:7px;width:6px;height:6px;border-radius:50%;background:#aeb4aa}
+.calendar-legend{display:flex;gap:14px;flex-wrap:wrap;margin:12px 2px 22px;color:var(--muted);font-size:12px}
+.calendar-legend span{display:flex;align-items:center;gap:6px}
+.legend-swatch{width:14px;height:14px;border-radius:5px;border:1px solid var(--line);display:inline-block}
+.legend-swatch.perfect{background:#dfeeda;border-color:#9fb992}
+.legend-swatch.today{background:white;border:2px solid #596b50}
+.stat-big{font-size:32px;font-weight:900;margin:10px 0 2px}
+@media(max-width:520px){
+ .calendar-weekdays,.calendar-grid{gap:4px}
+ .calendar-cell{border-radius:10px;padding:6px}
+ .mindfulness-grid{grid-template-columns:1fr 1fr}
+}
+
+
+/* ASTARTE v1.3.0 - nuove diete */
+.new-diet-card{border:1px solid #d9e4d2;background:linear-gradient(180deg,#fbfdf9,#f4f8f1)}
+.new-diet-grid{display:grid;grid-template-columns:1.35fr .65fr;gap:10px;margin:14px 0 10px}
+.new-diet-card label span,.upload-field span{display:block;font-size:12px;color:var(--muted);font-weight:700;margin-bottom:5px}
+.new-diet-card input{width:100%;padding:10px 11px;border:1px solid var(--line);border-radius:11px;background:white;color:var(--text)}
+.new-diet-card input[type=file]{padding:8px}
+.file-selected{font-size:13px;padding:9px 0;color:#53614d}
+.draft-card{border-color:#e7d8ae;background:#fffaf0}
+.draft-review{padding-top:4px}
+@media(max-width:520px){.new-diet-grid{grid-template-columns:1fr}}
+
+/* ASTARTE v1.3.1 stability patch */
+.calendar-cell{cursor:pointer!important}
+.calendar-cell.no-data{background:#fff;border-color:#e4e7df}
+.calendar-cell.today{outline:3px solid #596b50;outline-offset:1px;box-shadow:none!important}
+.calendar-cell.perfect{background:#d8ecd1!important;border-color:#86a978!important;color:#2f4728!important}
+.calendar-cell.perfect.today{outline-color:#344c2d}
+
+/* v1.3.2: stati calendario concordati */
+.calendar-cell.free-day{background:#fff1b8!important;border-color:#dfbc61!important;color:#715514!important}
+.calendar-cell.incomplete-day{background:#e7e9e9!important;border-color:#ced2d1!important;color:#686f70!important}
+.calendar-cell.perfect{background:#d8ecd1!important;border-color:#86a978!important;color:#2f4728!important}
+.legend-swatch.free-day{background:#fff1b8;border-color:#dfbc61}
+.legend-swatch.incomplete-day{background:#e7e9e9;border-color:#ced2d1}
+
+/* ASTARTE v1.3.3 - Statistiche settimanali e motivazione */
+.stats-period{margin:-5px 0 13px}
+.streak-card{margin-top:12px;background:linear-gradient(120deg,#f8fbf4,#eef6e8);border-color:#d9e5d1}
+.streak-number{font-size:36px;font-weight:850;line-height:1.2;margin-top:5px;color:#405a38}
+.streak-number span{font-size:15px;font-weight:650}
+.streak-icon{font-size:35px}
+.streak-card p{margin:9px 0 0;line-height:1.5}
+.motivation-card{margin:24px 0 20px;padding:22px 20px;border-radius:21px;border:1px solid #dce7d7;background:#f7faf4;text-align:center}
+.motivation-card p{font-size:19px;font-weight:750;line-height:1.45;color:#42553b;margin:13px 0}
+.motivation-card .eyebrow{color:#6a8061}
