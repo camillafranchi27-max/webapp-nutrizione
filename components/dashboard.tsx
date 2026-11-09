@@ -126,16 +126,82 @@ function CalendarView({logs,selected,setSelected}:{logs:DailyLog[];selected:Dail
  for(let day=1;day<=daysInMonth;day++){const iso=`${y}-${String(m+1).padStart(2,"0")}-${String(day).padStart(2,"0")}`;cells.push({date:iso,day,log:logByDate.get(iso)})}
  while(cells.length%7!==0)cells.push(null);
  const monthLogs=logs.filter(x=>{const dd=new Date(x.log_date+"T12:00:00");return dd.getFullYear()===y&&dd.getMonth()===m});
- const perfectDays=monthLogs.filter(x=>slots.every(s=>slotMeal(x,s.key)?.status==="according_to_plan")).length;
+ const greenDays=monthLogs.filter(x=>dayColor(x)==="green").length;
  const trainingDays=monthLogs.filter(x=>(x.workouts??[]).some((w:any)=>w.workout_type!=="None")).length;
  const waterDays=monthLogs.filter(x=>x.water_2l).length;
- return <><div className="calendar-month-head"><button className="month-nav" onClick={()=>setMonthCursor(new Date(y,m-1,1))}>‹</button><div><div className="section-title" style={{margin:0,textTransform:"capitalize"}}>{monthCursor.toLocaleDateString("it-IT",{month:"long",year:"numeric"})}</div><div className="muted small">{perfectDays} giornate 5/5 · {trainingDays} allenamenti · {waterDays} giorni acqua ✓</div></div><button className="month-nav" onClick={()=>setMonthCursor(new Date(y,m+1,1))}>›</button></div><div className="calendar-weekdays">{["L","M","M","G","V","S","D"].map((x,i)=><div key={i}>{x}</div>)}</div><div className="calendar-grid">{cells.map((cell,i)=>{if(!cell)return <div className="calendar-cell empty-cell" key={`e${i}`}/>;const log=cell.log;const complete=!!log&&slots.every(s=>!!slotMeal(log,s.key));const perfect=!!log&&slots.every(s=>slotMeal(log,s.key)?.status==="according_to_plan");const current=cell.date===today;const synthetic:DailyLog=log??{id:"",log_date:cell.date,source_weekday:jsWeekdayToPlan(new Date(cell.date+"T12:00:00")),lunch_dinner_swapped:false,notes:null,water_2l:false,mindfulness:[],workouts:[],meal_logs:[]};return <button key={cell.date} className={`calendar-cell ${perfect?"perfect":complete?"complete":log?"has-data":"no-data"} ${current?"today":""}`} onClick={()=>setSelected(synthetic)}><span className="day-number">{cell.day}</span>{perfect&&<span className="day-check">✓</span>}{log&&!perfect&&<span className="day-dot"/>}</button>})}</div><div className="calendar-legend"><span><i className="legend-swatch perfect"/>5/5 secondo piano</span><span><i className="legend-swatch today"/>Oggi</span></div></>
+ return <><div className="calendar-month-head"><button className="month-nav" onClick={()=>setMonthCursor(new Date(y,m-1,1))}>‹</button><div><div className="section-title" style={{margin:0,textTransform:"capitalize"}}>{monthCursor.toLocaleDateString("it-IT",{month:"long",year:"numeric"})}</div><div className="muted small">{greenDays} giornate verdi 5/5 · {trainingDays} allenamenti · {waterDays} giorni acqua ✓</div></div><button className="month-nav" onClick={()=>setMonthCursor(new Date(y,m+1,1))}>›</button></div><div className="calendar-weekdays">{["L","M","M","G","V","S","D"].map((x,i)=><div key={i}>{x}</div>)}</div><div className="calendar-grid">{cells.map((cell,i)=>{if(!cell)return <div className="calendar-cell empty-cell" key={`e${i}`}/>;const log=cell.log;const color=dayColor(log);const green=color==="green";const yellow=color==="yellow";const current=cell.date===today;const synthetic:DailyLog=log??{id:"",log_date:cell.date,source_weekday:jsWeekdayToPlan(new Date(cell.date+"T12:00:00")),lunch_dinner_swapped:false,notes:null,water_2l:false,mindfulness:[],workouts:[],meal_logs:[]};return <button key={cell.date} className={`calendar-cell ${green?"perfect":yellow?"free-day":"incomplete-day"} ${current?"today":""}`} onClick={()=>setSelected(synthetic)}><span className="day-number">{cell.day}</span>{green&&<span className="day-check">✓</span>}{yellow&&<span className="day-dot"/>}</button>})}</div><div className="calendar-legend"><span><i className="legend-swatch perfect"/>5/5 piano o modificati</span><span><i className="legend-swatch free-day"/>5/5 con pasti liberi</span><span><i className="legend-swatch incomplete-day"/>Pasti mancanti</span><span><i className="legend-swatch today"/>Oggi</span></div></>
 }
 function CalendarMeal({slot,meal}:{slot:any;meal?:MealLog}){return <div className="detail-meal"><div className="between"><div className="meal-title"><span>{slot.icon}</span>{slot.label}</div><span className={`status ${statusClass(meal?.status)}`}>{statusLabel(meal?.status)}</span></div>{meal?<div style={{marginTop:7}}>{sortFoods(meal.meal_log_items).map((f,i)=><FoodRow key={i} food={f}/>)}{meal.notes&&<div className="meal-note"><div>{meal.notes}</div><div className="note-registered">* nota registrata</div></div>}</div>:<div className="muted small" style={{marginTop:7}}>Non registrato</div>}</div>}
+// Identica regola utilizzata nel Calendario: grigio prevale sul giallo.
+type DayColor="green"|"yellow"|"gray";
+function dayColor(log?:DailyLog):DayColor{
+ if(!log)return "gray";
+ const meals=slots.map(slot=>slotMeal(log,slot.key));
+ if(meals.some(meal=>!meal))return "gray";
+ if(meals.some(meal=>meal?.status==="free"))return "yellow";
+ return meals.every(meal=>meal?.status==="according_to_plan"||meal?.status==="modified")?"green":"gray";
+}
+function dateKey(d:Date){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`}
+function currentWeekRange(){const now=new Date();const monday=new Date(now.getFullYear(),now.getMonth(),now.getDate());monday.setDate(monday.getDate()-(monday.getDay()+6)%7);const sunday=new Date(monday);sunday.setDate(sunday.getDate()+6);return {start:dateKey(monday),end:dateKey(sunday),today:dateKey(now),label:`${monday.toLocaleDateString("it-IT",{day:"numeric",month:"short"})} – ${sunday.toLocaleDateString("it-IT",{day:"numeric",month:"short"})}`}}
+function greenStreak(logs:DailyLog[],today:string){
+ // Un giorno giallo interrompe la serie; grigio/non registrato non la modifica.
+ let count=0;
+ for(const log of [...logs].filter(d=>d.log_date<=today).sort((a,b)=>a.log_date.localeCompare(b.log_date))){
+  const state=dayColor(log);
+  if(state==="yellow")count=0;
+  if(state==="green")count++;
+ }
+ return count;
+}
+const dailyMotivations=[
+ "Un piccolo passo ogni giorno costruisce grandi cambiamenti.",
+ "La costanza è fatta di gesti semplici, non di giornate perfette.",
+ "Prenderti cura di te è già un ottimo punto di partenza.",
+ "I progressi si costruiscono, un giorno alla volta.",
+ "Ascolta il tuo ritmo. Anche questo è progresso.",
+ "La direzione conta più della velocità.",
+ "Oggi hai un'altra occasione per fare qualcosa di buono per te.",
+ "Il benessere cresce con le piccole abitudini.",
+ "Riconosci ciò che hai fatto, non solo ciò che manca.",
+ "La cura di sé non ha bisogno di perfezione.",
+ "Continua a scegliere ciò che ti fa stare bene.",
+ "La tua energia merita attenzione, ogni giorno.",
+ "Un passo sostenibile vale più di uno sprint impossibile.",
+ "Il percorso è fatto anche di pause e ripartenze.",
+];
+function motivationOfDay(day:string){const epochDay=Math.floor(new Date(`${day}T12:00:00Z`).getTime()/86400000);return dailyMotivations[epochDay%dailyMotivations.length]}
 function StatsView({logs}:{logs:DailyLog[]}){
- const recognized=logs.flatMap(d=>slots.map(s=>slotMeal(d,s.key)).filter(Boolean) as MealLog[]);const total=recognized.length;const planCount=recognized.filter(m=>m.status==="according_to_plan").length;const modified=recognized.filter(m=>m.status==="modified").length;const free=recognized.filter(m=>m.status==="free").length;const adherence=total?Math.round(planCount/total*100):0;const completion=logs.length?Math.round(total/(logs.length*5)*100):0;const withTraining=logs.filter(d=>(d.workouts??[]).some((w:any)=>w.workout_type!=="None")).length;const perfectDays=logs.filter(d=>slots.every(s=>slotMeal(d,s.key)?.status==="according_to_plan")).length;const waterDays=logs.filter(d=>d.water_2l).length;const mindfulnessDays=logs.filter(d=>(d.mindfulness??[]).length>0).length;
- const workoutCounts:Record<string,number>={};logs.forEach(d=>(d.workouts??[]).forEach((w:any)=>{const l=workoutDbToLabel[w.workout_type]??w.workout_type;if(l!=="Nessuno")workoutCounts[l]=(workoutCounts[l]??0)+1}));const mindfulnessCounts:Record<string,number>={};logs.forEach(d=>(d.mindfulness??[]).forEach(x=>mindfulnessCounts[x]=(mindfulnessCounts[x]??0)+1));const planRelated=planCount+modified;const waterPct=logs.length?Math.round(waterDays/logs.length*100):0;
- return <><div className="section-title">Statistiche</div><div className="kpis"><div className="card kpi"><strong>{adherence}%</strong><span className="muted small">aderenza sui pasti registrati</span></div><div className="card kpi"><strong>{perfectDays}</strong><span className="muted small">giornate 5/5 secondo piano</span></div><div className="card kpi"><strong>{withTraining}</strong><span className="muted small">giorni con allenamento</span></div><div className="card kpi"><strong>{waterDays}</strong><span className="muted small">giorni con ≥2 L acqua</span></div></div><div className="card"><div className="meal-title">Distribuzione pasti</div><Bar label="Secondo il piano" value={planCount} total={total}/><Bar label="Modificati" value={modified} total={total} cls="modified"/><Bar label="Liberi" value={free} total={total} cls="free"/></div><div className="card"><div className="meal-title">Piano vs pasti liberi</div><Bar label="Dal piano (inclusi modificati)" value={planRelated} total={total}/><Bar label="Pasti liberi" value={free} total={total} cls="free"/></div><div className="card"><div className="meal-title">💧 Acqua</div><div className="stat-big">{waterPct}%</div><div className="muted small">{waterDays} di {logs.length} giornate registrate con almeno 2 L</div></div><div className="card"><div className="meal-title">◌ Mindfulness</div><div className="muted small" style={{marginBottom:8}}>{mindfulnessDays} giornate con almeno una pratica</div>{Object.entries(mindfulnessCounts).length?Object.entries(mindfulnessCounts).map(([k,v])=><div className="food" key={k}><span>{k}</span><span>{v}</span></div>):<div className="empty">Nessuna pratica registrata.</div>}</div><div className="card"><div className="meal-title">Allenamenti</div>{Object.entries(workoutCounts).length?Object.entries(workoutCounts).map(([k,v])=><div className="food" key={k}><span>{k}</span><span>{v}</span></div>):<div className="empty">Nessun allenamento registrato.</div>}</div><div className="notice">Una casella verde nel calendario significa esattamente 5 pasti su 5 registrati come “Secondo il piano”.</div></>
+ const week=currentWeekRange();
+ const weekLogs=logs.filter(d=>d.log_date>=week.start&&d.log_date<=week.today);
+ const trainingDays=weekLogs.filter(d=>(d.workouts??[]).some((w:any)=>w.workout_type!=="None")).length;
+ const greenWeek=weekLogs.filter(d=>dayColor(d)==="green").length;
+ const mindfulnessDays=weekLogs.filter(d=>(d.mindfulness??[]).length>0).length;
+ const waterDays=weekLogs.filter(d=>d.water_2l).length;
+ const streak=greenStreak(logs,week.today);
+ const loggedMeals=logs.flatMap(d=>slots.map(slot=>slotMeal(d,slot.key)).filter(Boolean) as MealLog[]);
+ const planOrModified=loggedMeals.filter(m=>m.status==="according_to_plan"||m.status==="modified").length;
+ const freeMeals=loggedMeals.filter(m=>m.status==="free").length;
+ const adherence=loggedMeals.length?Math.round(planOrModified/loggedMeals.length*100):0;
+ const workoutCounts:Record<string,number>={};
+ logs.forEach(d=>(d.workouts??[]).forEach((w:any)=>{const label=workoutDbToLabel[w.workout_type]??w.workout_type;if(label!=="Nessuno")workoutCounts[label]=(workoutCounts[label]??0)+1}));
+ const mindfulnessCounts:Record<string,number>={};
+ logs.forEach(d=>(d.mindfulness??[]).forEach(label=>{mindfulnessCounts[label]=(mindfulnessCounts[label]??0)+1}));
+ return <>
+  <div className="section-title">Questa settimana</div>
+  <div className="muted small stats-period">{week.label} · da lunedì a oggi</div>
+  <div className="kpis">
+   <div className="card kpi"><strong>{trainingDays}</strong><span className="muted small">giorni con allenamento</span></div>
+   <div className="card kpi"><strong>{greenWeek}</strong><span className="muted small">giornate verdi 5/5</span></div>
+   <div className="card kpi"><strong>{mindfulnessDays}</strong><span className="muted small">giorni mindfulness</span></div>
+   <div className="card kpi"><strong>{waterDays}</strong><span className="muted small">giorni acqua ≥ 2 L</span></div>
+  </div>
+  <div className="card streak-card"><div className="between"><div><div className="eyebrow">STREAK VERDE</div><div className="streak-number">{streak} <span>{streak===1?"giorno verde":"giorni verdi"}</span></div></div><span className="streak-icon" aria-hidden="true">🌱</span></div><p className="muted small">Ogni giornata verde aumenta lo streak. Una giornata gialla lo azzera; una grigia lo lascia invariato.</p></div>
+  <div className="section-title">Andamento complessivo</div>
+  <div className="card"><div className="between"><div className="meal-title">Aderenza ai pasti registrati</div><strong>{adherence}%</strong></div><Bar label="Secondo il piano o modificati" value={planOrModified} total={loggedMeals.length}/><Bar label="Pasti liberi" value={freeMeals} total={loggedMeals.length} cls="free"/><p className="muted small">I pasti non registrati non riducono questa percentuale, ma impediscono alla giornata di diventare verde.</p></div>
+  <div className="card"><div className="meal-title">Mindfulness · totale</div>{Object.entries(mindfulnessCounts).length?Object.entries(mindfulnessCounts).map(([label,count])=><div className="food" key={label}><span>{label}</span><span>{count}</span></div>):<div className="empty">Nessuna pratica registrata.</div>}</div>
+  <div className="card"><div className="meal-title">Allenamenti · totale</div>{Object.entries(workoutCounts).length?Object.entries(workoutCounts).map(([label,count])=><div className="food" key={label}><span>{label}</span><span>{count}</span></div>):<div className="empty">Nessun allenamento registrato.</div>}</div>
+  <div className="motivation-card"><div className="eyebrow">IL PENSIERO DI OGGI</div><p>“{motivationOfDay(week.today)}”</p><span className="muted small">1% better, everyday</span></div>
+ </>
 }
 function Bar({label,value,total,cls=""}:{label:string;value:number;total:number;cls?:string}){const pct=total?Math.round(value/total*100):0;return <div className="bar-row"><div className="bar-label"><span>{label}</span><strong>{value} · {pct}%</strong></div><div className={`bar ${cls}`}><span style={{width:`${pct}%`}}/></div></div>}
 function DietView({plan,version,breakfastOptions,snackOptions,weeklyMeals,equivalenceGroups,planChanges,editPlan,setEditPlan,pending,startTransition,draftVersions,latestDraft,draftOptions,draftWeeklyMeals,draftEquivalenceGroups}:{plan:any;version:any;breakfastOptions:Option[];snackOptions:Option[];weeklyMeals:WeeklyMeal[];equivalenceGroups:any[];planChanges:any[];editPlan:boolean;setEditPlan:(b:boolean)=>void;pending:boolean;startTransition:any;draftVersions:any[];latestDraft:any;draftOptions:Option[];draftWeeklyMeals:WeeklyMeal[];draftEquivalenceGroups:any[]}){

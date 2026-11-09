@@ -109,3 +109,19 @@ Nota: questa versione NON interpreta automaticamente il contenuto del PDF. La bo
 - Calendario: ogni giorno è apribile, anche senza registrazioni.
 - Evidenza più netta per oggi e per giornate verdi 5/5.
 - Creazione bozza dieta più robusta e protezione contro bozze duplicate.
+
+## v1.3.2 — Colori calendario
+- Verde: tutti i 5 pasti registrati, ciascuno secondo piano o modificato.
+- Giallo: tutti i 5 pasti registrati, almeno uno libero.
+- Grigio: almeno un pasto mancante (anche se altri sono liberi).
+- Oggi: bordo dedicato indipendente dallo stato.
+- Modifica solo frontend, non richiede migrazioni Supabase.
+
+
+## ASTARTE v1.3.3 — Statistiche allineate al calendario
+- KPI in alto relativi alla settimana corrente (lunedì-oggi): giorni allenamento, giorni verdi 5/5, mindfulness, acqua ≥ 2 L.
+- Secondo il piano e Modificato sono entrambi buoni.
+- Lo streak conta i giorni verdi, si azzera su giallo e non cambia su grigio. Non considera giorni futuri.
+- Rimosso il blocco «Distribuzione pasti»; mantenuta una barra Piano/modificati vs Liberi.
+- Frase motivazionale deterministica, diversa al variare del giorno.
+- Nessuna migrazione Supabase necessaria.

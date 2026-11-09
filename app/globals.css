@@ -70,3 +70,21 @@
 .calendar-cell.today{outline:3px solid #596b50;outline-offset:1px;box-shadow:none!important}
 .calendar-cell.perfect{background:#d8ecd1!important;border-color:#86a978!important;color:#2f4728!important}
 .calendar-cell.perfect.today{outline-color:#344c2d}
+
+/* v1.3.2: stati calendario concordati */
+.calendar-cell.free-day{background:#fff1b8!important;border-color:#dfbc61!important;color:#715514!important}
+.calendar-cell.incomplete-day{background:#e7e9e9!important;border-color:#ced2d1!important;color:#686f70!important}
+.calendar-cell.perfect{background:#d8ecd1!important;border-color:#86a978!important;color:#2f4728!important}
+.legend-swatch.free-day{background:#fff1b8;border-color:#dfbc61}
+.legend-swatch.incomplete-day{background:#e7e9e9;border-color:#ced2d1}
+
+/* ASTARTE v1.3.3 - Statistiche settimanali e motivazione */
+.stats-period{margin:-5px 0 13px}
+.streak-card{margin-top:12px;background:linear-gradient(120deg,#f8fbf4,#eef6e8);border-color:#d9e5d1}
+.streak-number{font-size:36px;font-weight:850;line-height:1.2;margin-top:5px;color:#405a38}
+.streak-number span{font-size:15px;font-weight:650}
+.streak-icon{font-size:35px}
+.streak-card p{margin:9px 0 0;line-height:1.5}
+.motivation-card{margin:24px 0 20px;padding:22px 20px;border-radius:21px;border:1px solid #dce7d7;background:#f7faf4;text-align:center}
+.motivation-card p{font-size:19px;font-weight:750;line-height:1.45;color:#42553b;margin:13px 0}
+.motivation-card .eyebrow{color:#6a8061}
