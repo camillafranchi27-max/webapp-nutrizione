@@ -137,3 +137,9 @@ Nota: questa versione NON interpreta automaticamente il contenuto del PDF. La bo
 Eseguire **supabase/migration_v1_3_4.sql** prima del deploy.
 
 Nota: per modificare una giornata passata, la selezione delle opzioni segue il piano attivo nel momento dell'editing. Gli alimenti storicamente salvati restano snapshot.
+
+
+## v1.3.5 - TypeScript build fix
+- Passa `initialTab` e `initialEditDate` dalla Home alla Dashboard.
+- Garantisce che `initialEditDate` sia `string | null` (mai `undefined`).
+- IMPORTANTE: Il progetto Vercel deve usare la root del repository e non una cartella annidata `Astarte 1.3.3`.

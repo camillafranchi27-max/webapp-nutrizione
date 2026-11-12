@@ -2,7 +2,7 @@ import {redirect} from "next/navigation";
 import {createClient} from "@/lib/supabase/server";
 import Dashboard from "@/components/dashboard";
 export default async function HomePage({searchParams}:{searchParams:Promise<{edit?:string;tab?:string}>}){
- const params=await searchParams;const initialEditDate=/^\d{4}-\d{2}-\d{2}$/.test(params.edit??"")?params.edit:null;const initialTab=params.tab==="dieta"?"dieta":"oggi";
+ const params=await searchParams;const initialEditDate: string | null = /^\d{4}-\d{2}-\d{2}$/.test(params.edit ?? "") ? (params.edit ?? null) : null;const initialTab=params.tab==="dieta"?"dieta":"oggi";
  const supabase=await createClient();const {data:claimsData}=await supabase.auth.getClaims();if(!claimsData?.claims)redirect("/login");
  const {data:plans}=await supabase.from("nutrition_plans").select("id,name,current_version,created_at").order("created_at",{ascending:false}).limit(1);const plan=plans?.[0];
  if(!plan)return <main className="shell"><div className="card"><h2>Nessun piano trovato</h2></div></main>;
