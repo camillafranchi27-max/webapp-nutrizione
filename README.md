@@ -143,3 +143,10 @@ Nota: per modificare una giornata passata, la selezione delle opzioni segue il p
 - Passa `initialTab` e `initialEditDate` dalla Home alla Dashboard.
 - Garantisce che `initialEditDate` sia `string | null` (mai `undefined`).
 - IMPORTANTE: Il progetto Vercel deve usare la root del repository e non una cartella annidata `Astarte 1.3.3`.
+
+## v1.3.6 — Spostamento abitudini in Oggi
+- Extra dopo Cena, con emoji 🍰; non viene conteggiato fra i cinque pasti.
+- No alcohol dopo Acqua, con emoji 🍷.
+- Rimosse entrambe le sezioni da Dieta.
+- Salvataggio di Extra e No alcohol ritorna a Oggi (o alla giornata storica in modifica).
+- Nessuna migrazione Supabase richiesta.
