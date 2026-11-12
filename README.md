@@ -125,3 +125,15 @@ Nota: questa versione NON interpreta automaticamente il contenuto del PDF. La bo
 - Rimosso il blocco «Distribuzione pasti»; mantenuta una barra Piano/modificati vs Liberi.
 - Frase motivazionale deterministica, diversa al variare del giorno.
 - Nessuna migrazione Supabase necessaria.
+
+
+## v1.3.4
+- Modifica i giorni passati da Calendario → Modifica questa giornata (pasti, workout, acqua e mindfulness).
+- In Dieta: elenco Extra giornalieri (inserimento/rimozione) e flag No alcohol.
+- Extra spezza lo streak verde; giallo se 5 pasti registrati e almeno un extra.
+- Streak No alcohol nelle statistiche basato sui flag giornalieri consecutivi.
+- Allenamenti Zona 2 e Zona 5.
+
+Eseguire **supabase/migration_v1_3_4.sql** prima del deploy.
+
+Nota: per modificare una giornata passata, la selezione delle opzioni segue il piano attivo nel momento dell'editing. Gli alimenti storicamente salvati restano snapshot.

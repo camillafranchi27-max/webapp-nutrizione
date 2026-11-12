@@ -10,7 +10,7 @@ async function ensureDay(supabase:any,userId:string,input:{date:string;planVersi
  const {data:existing,error:findError}=await supabase.from("daily_logs").select("id").eq("user_id",userId).eq("log_date",input.date).maybeSingle();
  if(findError)throw new Error(findError.message);
  if(existing?.id){
-  const {error:updateError}=await supabase.from("daily_logs").update({plan_version_id:input.planVersionId,source_weekday:input.sourceWeekday,lunch_dinner_swapped:input.swapped}).eq("id",existing.id).eq("user_id",userId);
+  const {error:updateError}=await supabase.from("daily_logs").update({source_weekday:input.sourceWeekday,lunch_dinner_swapped:input.swapped}).eq("id",existing.id).eq("user_id",userId);
   if(updateError)throw new Error(updateError.message);
   return existing.id as string;
  }
@@ -24,7 +24,7 @@ export async function saveDaySettings(input:{date:string;planVersionId:string;so
 }
 export async function saveWorkout(input:{date:string;planVersionId:string;sourceWeekday:number;swapped:boolean;labels:string[]}){
  const {supabase,userId}=await auth();const dailyLogId=await ensureDay(supabase,userId,input);await supabase.from("workouts").delete().eq("daily_log_id",dailyLogId);
- const map:Record<string,string>={Nessuno:"None",Yoga:"Yoga",Corsa:"Running",Trekking:"Trekking",Camminata:"Walking",Gym:"Gym"};
+ const map:Record<string,string>={Nessuno:"None",Yoga:"Yoga",Corsa:"Running",Trekking:"Trekking",Camminata:"Walking",Gym:"Gym","Zona 2":"Zone2","Zona 5":"Zone5"};
  const labels=input.labels.length?input.labels:["Nessuno"];const {error}=await supabase.from("workouts").insert(labels.map(label=>({user_id:userId,daily_log_id:dailyLogId,workout_type:map[label]??label})));if(error)throw new Error(error.message);revalidatePath("/")
 }
 
@@ -36,6 +36,18 @@ export async function saveWellbeing(input:{date:string;planVersionId:string;sour
  const {error}=await supabase.from("daily_logs").update({water_2l:input.water2l,mindfulness}).eq("id",dailyLogId);
  if(error)throw new Error(error.message);
  revalidatePath("/");
+}
+export async function saveHabits(input:{date:string;planVersionId:string;sourceWeekday:number;swapped:boolean;extras:string[];noAlcohol:boolean}):Promise<ActionResult>{
+ try{
+  const {supabase,userId}=await auth();
+  if(input.extras.length>30)throw new Error("Massimo 30 extra per giornata");
+  const extras=input.extras.map(x=>x.trim()).filter(Boolean);
+  if(extras.some(x=>x.length>400))throw new Error("Descrizione extra troppo lunga");
+  const id=await ensureDay(supabase,userId,input);
+  const {error}=await supabase.from("daily_logs").update({extras,no_alcohol:input.noAlcohol}).eq("id",id).eq("user_id",userId);
+  if(error)throw new Error(error.message);
+  revalidatePath("/");return {ok:true};
+ }catch(e){return {ok:false,error:actionError(e)}}
 }
 export async function replaceMeal(input:{date:string;planVersionId:string;sourceWeekday:number;swapped:boolean;mealType:"breakfast"|"snack"|"lunch"|"dinner";snackTiming?:"mid_morning"|"mid_afternoon";sourceMealOptionId?:string;sourceWeeklyMealId?:string;status:"according_to_plan"|"modified"|"free";notes?:string;items:{food_name:string;quantity?:string|null;unit?:string|null;is_extra?:boolean}[]}):Promise<ActionResult>{
  try{
